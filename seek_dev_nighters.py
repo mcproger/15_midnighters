@@ -11,13 +11,13 @@ def get_argparser():
     return args
 
 
-def load_attempts():
+def load_attempts(devman_api_url):
     number_of_pages = 11
     attempts = []
     for page in range(1, number_of_pages):
-        devman_api_url = 'https://devman.org/api/challenges/solution_attempts'
         params = {'page': page}
-        response = requests.get(devman_api_url, params=params).json()['records']
+        response = requests.get(
+            devman_api_url, params=params).json()['records']
         attempts.extend(response)
     return attempts
 
@@ -34,21 +34,24 @@ def get_attempts_info(attempts):
 def is_timestamp_midnight(timestamp, timezone, hours):
     time = datetime.datetime.fromtimestamp(timestamp)
     local_timezone = pytz.timezone(timezone)
-    time_utc = pytz.utc.localize(time)
-    local_time = time_utc.astimezone(local_timezone)
-    return local_time.hour >= 0 and local_time.hour <= hours 
+    time_utc_attempt = pytz.utc.localize(time)
+    local_time_attempt = time_utc_attempt.astimezone(local_timezone)
+    return local_time_attempt.hour >= 0 and local_time_attempt.hour <= hours
 
 
 def get_midnighters(attempts_info):
-    pass
-
-
-if __name__ == '__main__':
-    args = get_argparser()
-    attempts = load_attempts()
-    attempts_info = get_attempts_info(attempts)
     for attempt_info in attempts_info:
         timestamp = attempt_info['timestamp'] if attempt_info['timestamp'] else 0
         timezone = attempt_info['timezone']
         if is_timestamp_midnight(timestamp, timezone, args.hours):
-            print(attempt_info['username'])
+            yield attempt_info['username']
+
+
+if __name__ == '__main__':
+    args = get_argparser()
+    devman_api_url = 'https://devman.org/api/challenges/solution_attempts'
+    attempts = load_attempts(devman_api_url)
+    attempts_info = get_attempts_info(attempts)
+    midnighters = set(get_midnighters(attempts_info))
+    for midnighter in midnighters:
+        print(midnighter)
