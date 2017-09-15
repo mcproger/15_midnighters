@@ -6,7 +6,7 @@ import argparse
 
 def get_console_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument('hours', type=int)
+    parser.add_argument('hours', type=int, help='Time checking boundary')
     args = parser.parse_args()
     return args
 
@@ -52,6 +52,6 @@ if __name__ == '__main__':
     devman_api_url = 'https://devman.org/api/challenges/solution_attempts'
     attempts = load_attempts(devman_api_url)
     attempts_info = get_attempts_info(attempts)
-    midnighters = set(get_midnighters(attempts_info))
+    midnighters = set(get_midnighters(attempts_info, args))
     for midnighter in midnighters:
         print(midnighter)
