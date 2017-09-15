@@ -4,7 +4,7 @@ import datetime
 import argparse
 
 
-def get_argparser():
+def get_console_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('hours', type=int)
     args = parser.parse_args()
@@ -48,7 +48,7 @@ def get_midnighters(attempts_info):
 
 
 if __name__ == '__main__':
-    args = get_argparser()
+    args = get_console_arguments()
     devman_api_url = 'https://devman.org/api/challenges/solution_attempts'
     attempts = load_attempts(devman_api_url)
     attempts_info = get_attempts_info(attempts)
