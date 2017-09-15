@@ -1,6 +1,6 @@
 # Night Owls Detector
 
-The script shows students who send tasks for verification at [DEVMAN.org] (https://devman.org) after midnight.
+The script shows students who send tasks for verification at [DEVMAN.org](https://devman.org) after midnight.
 
 
 # Using 
