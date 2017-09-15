@@ -39,7 +39,7 @@ def is_timestamp_midnight(timestamp, timezone, hours):
     return local_time_attempt.hour >= 0 and local_time_attempt.hour <= hours
 
 
-def get_midnighters(attempts_info):
+def get_midnighters(attempts_info, args):
     for attempt_info in attempts_info:
         timestamp = attempt_info['timestamp'] if attempt_info['timestamp'] else 0
         timezone = attempt_info['timezone']
