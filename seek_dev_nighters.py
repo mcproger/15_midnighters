@@ -11,12 +11,11 @@ def get_console_arguments():
     return args
 
 
-def load_attempts(devman_api_url, number_of_pages):
-    solution_attempts = []
+def load_attempts(devman_api_url):
     params = {'page': 1}
     response = requests.get(
         devman_api_url, params=params).json()
-    number_of_pages = response['number_of_pages']
+    number_of_pages = response['number_of_pages'] + 1
     solution_attempts = response['records']
     for page in range(2, number_of_pages):
         params['page'] = page
@@ -49,8 +48,7 @@ if __name__ == '__main__':
     args = get_console_arguments()
     final_check_time = args.final_check_time
     devman_api_url = 'https://devman.org/api/challenges/solution_attempts'
-    number_of_pages = get_pages_quantity(devman_api_url) + 1
-    attempts = load_attempts(devman_api_url, number_of_pages)
+    attempts = load_attempts(devman_api_url)
     for attempt in attempts:
         midnighters = get_midnighters(attempt, final_check_time)
         for midnighter in midnighters:
