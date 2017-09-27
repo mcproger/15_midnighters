@@ -6,52 +6,54 @@ import argparse
 
 def get_console_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument('hours', type=int, help='Time checking boundary')
+    parser.add_argument('final_check_time', type=int, help='Time checking boundary')
     args = parser.parse_args()
     return args
 
 
+def get_pages_quantity(devman_api_url):
+    page = 2
+    params = {'page': page}
+    number_of_pages = requests.get(
+        devman_api_url, params=params).json()['number_of_pages']
+    return number_of_pages
+
+
 def load_attempts(devman_api_url):
-    number_of_pages = 11
-    attempts = []
-    for page in range(1, number_of_pages):
+    for page in range(2, number_of_pages):
         params = {'page': page}
-        response = requests.get(
+        solution_attempts = requests.get(
             devman_api_url, params=params).json()['records']
-        attempts.extend(response)
-    return attempts
+        for attempt in solution_attempts:
+            yield {
+                'username': attempt['username'],
+                'timestamp': attempt['timestamp'],
+                'timezone': attempt['timezone'],
+            }
 
 
-def get_attempts_info(attempts):
-    for attempt in attempts:
-        yield {
-            'username': attempt['username'],
-            'timestamp': attempt['timestamp'],
-            'timezone': attempt['timezone'],
-        }
-
-
-def is_timestamp_midnight(timestamp, timezone, hours):
+def is_timestamp_midnight(timestamp, timezone, final_check_time):
     time = datetime.datetime.fromtimestamp(timestamp)
     local_timezone = pytz.timezone(timezone)
     time_utc_attempt = pytz.utc.localize(time)
     local_time_attempt = time_utc_attempt.astimezone(local_timezone)
-    return local_time_attempt.hour >= 0 and local_time_attempt.hour <= hours
+    return local_time_attempt.hour >= 0 and local_time_attempt.hour <= final_check_time
 
 
-def get_midnighters(attempts_info, args):
-    for attempt_info in attempts_info:
-        timestamp = attempt_info['timestamp'] if attempt_info['timestamp'] else 0
-        timezone = attempt_info['timezone']
-        if is_timestamp_midnight(timestamp, timezone, args.hours):
-            yield attempt_info['username']
+def get_midnighters(attempt, final_check_time):
+    timestamp = attempt['timestamp'] if attempt['timestamp'] else 0
+    timezone = attempt['timezone']
+    if is_timestamp_midnight(timestamp, timezone, final_check_time):
+        yield attempt['username']
 
 
 if __name__ == '__main__':
     args = get_console_arguments()
+    final_check_time = args.final_check_time
     devman_api_url = 'https://devman.org/api/challenges/solution_attempts'
+    number_of_pages = get_pages_quantity(devman_api_url) + 1
     attempts = load_attempts(devman_api_url)
-    attempts_info = get_attempts_info(attempts)
-    midnighters = set(get_midnighters(attempts_info, args))
-    for midnighter in midnighters:
-        print(midnighter)
+    for attempt in attempts:
+        midnighters = get_midnighters(attempt, final_check_time)
+        for midnighter in midnighters:
+            print(midnighter)
