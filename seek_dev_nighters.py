@@ -19,7 +19,7 @@ def get_pages_quantity(devman_api_url):
     return number_of_pages
 
 
-def load_attempts(devman_api_url):
+def load_attempts(devman_api_url, number_of_pages):
     for page in range(2, number_of_pages):
         params = {'page': page}
         solution_attempts = requests.get(
@@ -52,7 +52,7 @@ if __name__ == '__main__':
     final_check_time = args.final_check_time
     devman_api_url = 'https://devman.org/api/challenges/solution_attempts'
     number_of_pages = get_pages_quantity(devman_api_url) + 1
-    attempts = load_attempts(devman_api_url)
+    attempts = load_attempts(devman_api_url, number_of_pages)
     for attempt in attempts:
         midnighters = get_midnighters(attempt, final_check_time)
         for midnighter in midnighters:
