@@ -8,7 +8,7 @@ The script shows students who send tasks for verification at [DEVMAN.org](https:
 The scripts works via [Devman API](https://devman.org/api/challenges/solution_attempts) and takes data from it. User should enter time that will establish range of hours after midnight.
 
 ```
-$ python3 seek_dev_nighters.py
+$ python3 seek_dev_nighters.py <final_check_time>
 
   rancvova
   pinguine
