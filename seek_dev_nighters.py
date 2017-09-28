@@ -16,17 +16,12 @@ def load_attempts(devman_api_url):
     response = requests.get(
         devman_api_url, params=params).json()
     number_of_pages = response['number_of_pages'] + 1
-    solution_attempts = response['records']
+    yield response['records']
     for page in range(2, number_of_pages):
         params['page'] = page
-        solution_attempts.extend(requests.get(
-            devman_api_url, params=params).json()['records'])
-        for attempt in solution_attempts:
-            yield {
-                'username': attempt['username'],
-                'timestamp': attempt['timestamp'],
-                'timezone': attempt['timezone'],
-            }
+        solution_attempts = requests.get(
+            devman_api_url, params=params).json()['records']
+        yield solution_attempts
 
 
 def is_timestamp_midnight(timestamp, timezone, final_check_time):
@@ -37,19 +32,20 @@ def is_timestamp_midnight(timestamp, timezone, final_check_time):
     return local_time_attempt.hour >= 0 and local_time_attempt.hour <= final_check_time
 
 
-def get_midnighters(attempt, final_check_time):
-    timestamp = attempt['timestamp'] if attempt['timestamp'] else 0
-    timezone = attempt['timezone']
-    if is_timestamp_midnight(timestamp, timezone, final_check_time):
-        yield attempt['username']
+def get_midnighters(attempts, final_check_time):
+    for attempt in attempts:
+        timestamp = attempt['timestamp'] if attempt['timestamp'] else 0
+        timezone = attempt['timezone']
+        if is_timestamp_midnight(timestamp, timezone, final_check_time):
+            yield attempt['username']
 
 
 if __name__ == '__main__':
     args = get_console_arguments()
     final_check_time = args.final_check_time
     devman_api_url = 'https://devman.org/api/challenges/solution_attempts'
-    attempts = load_attempts(devman_api_url)
-    for attempt in attempts:
-        midnighters = get_midnighters(attempt, final_check_time)
+    solution_attempts = load_attempts(devman_api_url)
+    for attempts in solution_attempts:
+        midnighters = get_midnighters(attempts, final_check_time)
         for midnighter in midnighters:
             print(midnighter)
