@@ -15,7 +15,7 @@ def load_attempts(devman_api_url):
     params = {'page': 1}
     response = requests.get(
         devman_api_url, params=params).json()
-    number_of_pages = response['number_of_pages'] + 1
+    number_of_pages = response['number_of_pages']
     yield response['records']
     for page in range(2, number_of_pages):
         params['page'] = page
