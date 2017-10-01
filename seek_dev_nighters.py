@@ -13,12 +13,12 @@ def get_console_arguments():
 
 def load_attempts(devman_api_url):
     params = {'page': 1}
-    response = requests.get(
+    first_page = requests.get(
         devman_api_url, params=params).json()
-    number_of_pages = response['number_of_pages']
-    yield response['records']
-    for page in range(2, number_of_pages):
-        params['page'] = page
+    number_of_pages_limit = first_page['number_of_pages'] + 1 
+    yield first_page['records']
+    for page_number in range(2, number_of_pages_limit):
+        params['page'] = page_number
         solution_attempts = requests.get(
             devman_api_url, params=params).json()['records']
         yield solution_attempts
